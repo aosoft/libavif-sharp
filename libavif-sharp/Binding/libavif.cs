@@ -75,7 +75,7 @@ namespace LibAvif.Binding
         AVIF_RANGE_FULL = 1
     }
 
-    internal enum avifPrimaries
+    internal enum avifColorPrimaries
     {
         AVIF_COLOR_PRIMARIES_UNKNOWN = 0,
         AVIF_COLOR_PRIMARIES_BT709 = 1,
