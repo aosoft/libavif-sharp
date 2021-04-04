@@ -199,7 +199,7 @@ namespace LibAvif
                         }
                     }
 
-                    return new AvifImageData<T>(w, h, new IntPtr(*(pp + index2)), native->yuvRowBytes[index2]);
+                    return new AvifImageData<T>(1, w, h, new IntPtr(*(pp + index2)), native->yuvRowBytes[index2]);
                 }
             }
         }
@@ -308,7 +308,7 @@ namespace LibAvif
                     return default;
                 }
                 var p = (avifImage*)_native;
-                return new AvifImageData<T>(p->width, p->height, p->alphaPlane, p->alphaRowBytes);
+                return new AvifImageData<T>(1, p->width, p->height, p->alphaPlane, p->alphaRowBytes);
             }
         }
 
