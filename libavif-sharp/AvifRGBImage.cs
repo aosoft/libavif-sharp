@@ -24,41 +24,38 @@ namespace LibAvif
     }
 
 
-    public sealed class AvifRGBImage : IDisposable
+    public class AvifRGBImageView
     {
-        private avifRGBImage _native;
+        internal avifRGBImage _native;
 
-        public AvifRGBImage()
+        public AvifRGBImageView(uint width, uint height, uint depth, AvifRGBFormat format, IntPtr pixels, uint rowBytes)
         {
-        }
-
-        public void Dispose()
-        {
-            
+            _native.width = width;
+            _native.height = height;
+            _native.depth = depth;
+            _native.format = (avifRGBFormat)format;
+            _native.pixels = pixels;
+            _native.rowBytes = rowBytes;
         }
 
         public uint Width
         {
             get => _native.width;
-            set => _native.width = value;
         }
 
         public uint Height
         {
             get => _native.height;
-            set => _native.height = value;
         }
 
         public uint Depth
         {
             get => _native.depth;
-            set => _native.depth = value;
         }
 
         public AvifRGBFormat Format
         {
             get => (AvifRGBFormat)_native.format;
-            set => _native.format = (avifRGBFormat)value;
         }
 
         public AvifChromaUpsampling ChromaUpsampling
@@ -81,5 +78,61 @@ namespace LibAvif
 
         public AvifImageData<byte> Pixels8 => new AvifImageData<byte>(Format.GetChannelCount(), _native.width, _native.height, _native.pixels, _native.rowBytes);
         public AvifImageData<ushort> Pixels16 => new AvifImageData<ushort>(Format.GetChannelCount(), _native.width, _native.height, _native.pixels, _native.rowBytes);
+
+        public void PremultiplyAlpha()
+        {
+            unsafe
+            {
+                fixed (avifRGBImage* p = &_native)
+                {
+                    libavif.avifRGBImagePremultiplyAlpha(new IntPtr(p));
+                }
+            }
+        }
+
+        public void UnpremultiplyAlpha()
+        {
+            unsafe
+            {
+                fixed (avifRGBImage* p = &_native)
+                {
+                    libavif.avifRGBImageUnpremultiplyAlpha(new IntPtr(p));
+                }
+            }
+        }
+    }
+
+    public class AvifRGBImage : AvifRGBImageView, IDisposable
+    {
+        private AvifRGBImage(uint width, uint height, uint depth, AvifRGBFormat format) : base(width, height, depth, format, IntPtr.Zero, 0)
+        {
+        }
+
+        public static AvifRGBImage Create(uint width, uint height, uint depth, AvifRGBFormat format)
+        {
+            var ret = new AvifRGBImage(width, height, depth, format);
+
+            unsafe
+            {
+                fixed (avifRGBImage* p = &ret._native)
+                {
+                    libavif.avifRGBImageAllocatePixels(new IntPtr(p));
+                }
+            }
+
+            return ret;
+        }
+
+
+        public void Dispose()
+        {
+            unsafe
+            {
+                fixed (avifRGBImage* p = &_native)
+                {
+                    libavif.avifRGBImageFreePixels(new IntPtr(p));
+                }
+            }
+        }
     }
 }
