@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using LibAvif.Binding;
 
 namespace LibAvif
@@ -24,6 +22,8 @@ namespace LibAvif
                 _count = data.size / (ulong)sizeof(T);
             }
         }
+
+        unsafe public IntPtr Pointer => _p;
 
         public ulong Count => _count;
 
@@ -74,6 +74,8 @@ namespace LibAvif
             }
         }
 
+
+        unsafe public IntPtr Pointer => _data.Pointer;
 
         public ulong Count => _data.Count;
 

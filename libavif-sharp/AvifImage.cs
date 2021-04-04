@@ -5,6 +5,16 @@ using LibAvif.Binding;
 
 namespace LibAvif
 {
+    public enum AvifChannelIndex
+    {
+        R = avifChannelIndex.AVIF_CHAN_R,
+        G = avifChannelIndex.AVIF_CHAN_G,
+        B = avifChannelIndex.AVIF_CHAN_B,
+        Y = avifChannelIndex.AVIF_CHAN_Y,
+        U = avifChannelIndex.AVIF_CHAN_U,
+        V = avifChannelIndex.AVIF_CHAN_V,
+    }
+
     public enum AvifPixelFormat
     {
         None = avifPixelFormat.AVIF_PIXEL_FORMAT_NONE,
@@ -85,6 +95,15 @@ namespace LibAvif
         ICtCp = avifMatrixCoefficients.AVIF_MATRIX_COEFFICIENTS_ICTCP,
     }
 
+    [Flags]
+    public enum AvifTransformationFlags
+    {
+        None = avifTransformationFlags.AVIF_TRANSFORM_NONE,
+        PASP = avifTransformationFlags.AVIF_TRANSFORM_PASP,
+        CLAP = avifTransformationFlags.AVIF_TRANSFORM_CLAP,
+        IROT = avifTransformationFlags.AVIF_TRANSFORM_IROT,
+        IMIR = avifTransformationFlags.AVIF_TRANSFORM_IMIR,
+    }
 
     public readonly struct AvifPixelAspectRatioBox
     {
@@ -134,9 +153,54 @@ namespace LibAvif
         };
     }
 
+    public readonly ref struct AvifImagePlanes<T> where T : unmanaged
+    {
+        private readonly IntPtr _nativeAvifImage;
+
+        internal AvifImagePlanes(IntPtr nativeAvifImage)
+        {
+            _nativeAvifImage = nativeAvifImage;
+        }
+
+        public AvifImageData<T> this[AvifChannelIndex index]
+        {
+            get
+            {
+                unsafe
+                {
+                    var native = (avifImage*)_nativeAvifImage;
+                    var pp = (byte**)(native->yuvPlanes);
+                    var index2 = (int)index;
+
+                    uint w = native->width;
+                    uint h = native->height;
+
+                    var format = (AvifPixelFormat)native->yuvFormat;
+                    if (index != AvifChannelIndex.Y && format != AvifPixelFormat.None)
+                    {
+                        switch (format)
+                        {
+                            case AvifPixelFormat.YUV422:
+                                w /= 2;
+                                break;
+                            case AvifPixelFormat.YUV420:
+                                w /= 2;
+                                h /= 2;
+                                break;
+                            case AvifPixelFormat.YUV400:
+                                return default;
+                        }
+                    }
+
+                    return new AvifImageData<T>(w, h, new IntPtr(*(pp + index2)), native->yuvRowBytes[index2]);
+                }
+            }
+        }
+    }
+
     public sealed class AvifImage : IDisposable
     {
-        unsafe private IntPtr _native;
+        private IntPtr _native;
 
         public AvifImage()
         {
@@ -213,8 +277,8 @@ namespace LibAvif
             set { unsafe { Set((p, v) => p->yuvChromaSamplePosition = v, (avifChromaSamplePosition)value); } }
         }
 
-        //internal __IntPtr yuvPlanes;
-        //internal fixed uint yuvRowBytes[3];
+        public AvifImagePlanes<byte> YUVPlanes8 => new AvifImagePlanes<byte>(_native);
+        public AvifImagePlanes<ushort> YUVPlanes16 => new AvifImagePlanes<ushort>(_native);
 
         public int ImageOwnsYUVPlanes
         {
@@ -228,8 +292,21 @@ namespace LibAvif
             set { unsafe { Set((p, v) => p->alphaRange = v, (avifRange)value); } }
         }
 
-        //internal __IntPtr alphaPlane;
-        //internal uint alphaRowBytes;
+        private AvifImageData<T> GetAlphaPlane<T>() where T : unmanaged
+        {
+            unsafe
+            {
+                if (_native == IntPtr.Zero)
+                {
+                    return default;
+                }
+                var p = (avifImage*)_native;
+                return new AvifImageData<T>(p->width, p->height, p->alphaPlane, p->alphaRowBytes);
+            }
+        }
+
+        public AvifImageData<byte> AlphaPlane8 => GetAlphaPlane<byte>();
+        public AvifImageData<ushort> AlphaPlane16 => GetAlphaPlane<ushort>();
 
         public int ImageOwnsAlphaPlane
         {
@@ -266,7 +343,11 @@ namespace LibAvif
             set { unsafe { Set((p, v) => p->matrixCoefficients = v, (ushort)value); } }
         }
 
-        public uint transformFlags;
+        public AvifTransformationFlags TransformFlags
+        {
+            get { unsafe { return (AvifTransformationFlags)Get(p => p->transformFlags); } }
+            set { unsafe { Set((p, v) => p->transformFlags = v, (uint)value); } }
+        }
 
         public AvifPixelAspectRatioBox PixelAspectRatio
         {
