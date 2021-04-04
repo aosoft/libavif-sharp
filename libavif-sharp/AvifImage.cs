@@ -1,10 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using LibAvif.Binding;
 
 namespace LibAvif
 {
+    [Flags]
+    public enum AvifPlanesFlags : uint
+    {
+        YUV = avifPlanesFlags.AVIF_PLANES_YUV,
+        A = avifPlanesFlags.AVIF_PLANES_A,
+        All = avifPlanesFlags.AVIF_PLANES_ALL,
+    }
+
+
     public enum AvifChannelIndex
     {
         R = avifChannelIndex.AVIF_CHAN_R,
@@ -96,7 +103,7 @@ namespace LibAvif
     }
 
     [Flags]
-    public enum AvifTransformationFlags
+    public enum AvifTransformationFlags : uint
     {
         None = avifTransformationFlags.AVIF_TRANSFORM_NONE,
         PASP = avifTransformationFlags.AVIF_TRANSFORM_PASP,
@@ -378,9 +385,83 @@ namespace LibAvif
             get { unsafe { return new AvifData<byte>(Get(p => p->exif)); } }
         }
 
-        public AvifData<byte> Xmp
+        public AvifData<byte> XMP
         {
             get { unsafe { return new AvifData<byte>(Get(p => p->xmp)); } }
+        }
+
+        public void AllocatePlanes(AvifPlanesFlags planes)
+        {
+            if (_native != IntPtr.Zero)
+            {
+                libavif.avifImageAllocatePlanes(_native, (uint)planes);
+            }
+        }
+
+        public void FreePlanes(AvifPlanesFlags planes)
+        {
+            if (_native != IntPtr.Zero)
+            {
+                libavif.avifImageFreePlanes(_native, (uint)planes);
+            }
+        }
+
+        public void CopyTo(AvifImage dstImage, AvifPlanesFlags planes)
+        {
+            if (_native != IntPtr.Zero && dstImage._native != IntPtr.Zero)
+            {
+                libavif.avifImageCopy(dstImage._native, _native, (uint)planes);
+            }
+        }
+
+        public void StealPlanes(AvifImage dstImage, AvifPlanesFlags planes)
+        {
+            if (_native != IntPtr.Zero && dstImage._native != IntPtr.Zero)
+            {
+                libavif.avifImageStealPlanes(dstImage._native, _native, (uint)planes);
+            }
+        }
+
+        public void SetProfileICC(byte[] icc)
+        {
+            unsafe
+            {
+                if (_native != IntPtr.Zero)
+                {
+                    fixed (byte* p = &icc[0])
+                    {
+                        libavif.avifImageSetProfileICC(_native, p, (ulong)icc.Length);
+                    }
+                }
+            }
+        }
+
+        public void SetMetadataExif(byte[] exif)
+        {
+            unsafe
+            {
+                if (_native != IntPtr.Zero)
+                {
+                    fixed (byte* p = &exif[0])
+                    {
+                        libavif.avifImageSetMetadataExif(_native, p, (ulong)exif.Length);
+                    }
+                }
+            }
+        }
+
+        public void SetMetadataXMP(byte[] xmp)
+        {
+            unsafe
+            {
+                if (_native != IntPtr.Zero)
+                {
+                    fixed (byte* p = &xmp[0])
+                    {
+                        libavif.avifImageSetMetadataXMP(_native, p, (ulong)xmp.Length);
+                    }
+                }
+            }
         }
     }
 }
