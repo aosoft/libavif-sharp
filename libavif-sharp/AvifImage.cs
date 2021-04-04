@@ -85,6 +85,55 @@ namespace LibAvif
         ICtCp = avifMatrixCoefficients.AVIF_MATRIX_COEFFICIENTS_ICTCP,
     }
 
+
+    public readonly struct AvifPixelAspectRatioBox
+    {
+        public uint HSpacing { get; }
+        public uint VSpacing { get; }
+
+        public AvifPixelAspectRatioBox(uint hSpacing, uint vSpacing)
+        {
+            HSpacing = hSpacing;
+            VSpacing = vSpacing;
+        }
+
+        internal static AvifPixelAspectRatioBox From(avifPixelAspectRatioBox src) => new AvifPixelAspectRatioBox(src.hSpacing, src.vSpacing);
+        internal avifPixelAspectRatioBox To() => new avifPixelAspectRatioBox() { hSpacing = HSpacing, vSpacing = VSpacing };
+    }
+
+    public readonly struct AvifCleanApertureBox
+    {
+        public Fraction Width { get; }
+        public Fraction Height { get; }
+        public Fraction HorizOff { get; }
+        public Fraction VertOff { get; }
+
+        public AvifCleanApertureBox(Fraction width, Fraction height, Fraction horizOff, Fraction vertOff)
+        {
+            Width = width;
+            Height = height;
+            HorizOff = horizOff;
+            VertOff = vertOff;
+        }
+
+        internal static AvifCleanApertureBox From(avifCleanApertureBox src) => new AvifCleanApertureBox(
+            new Fraction(src.widthN, src.widthD),
+            new Fraction(src.heightN, src.heightD),
+            new Fraction(src.horizOffN, src.horizOffD),
+            new Fraction(src.vertOffN, src.vertOffD));
+
+        internal avifCleanApertureBox To() => new avifCleanApertureBox() {
+            widthN = Width.Numerator,
+            widthD = Width.Denominator,
+            heightN = Height.Numerator,
+            heightD = Height.Denominator,
+            horizOffN = HorizOff.Numerator,
+            horizOffD = HorizOff.Denominator,
+            vertOffN = VertOff.Numerator,
+            vertOffD = VertOff.Denominator,
+        };
+    }
+
     public sealed class AvifImage : IDisposable
     {
         unsafe private IntPtr _native;
@@ -216,12 +265,31 @@ namespace LibAvif
 
         public uint transformFlags;
 
+        public AvifPixelAspectRatioBox PixelAspectRatio
+        {
+            get { unsafe { return AvifPixelAspectRatioBox.From(Get(p => p->pasp)); } }
+            set { unsafe { Set((p, v) => p->pasp = v.To(), value); } }
+        }
+
+        public AvifCleanApertureBox CleanAperture
+        {
+            get { unsafe { return AvifCleanApertureBox.From(Get(p => p->clap)); } }
+            set { unsafe { Set((p, v) => p->clap = v.To(), value); } }
+        }
+
+        public byte ImageRotationAngle
+        {
+            get { unsafe { return Get(p => p->irot.angle); } }
+            set { unsafe { Set((p, v) => p->irot = new avifImageRotation() { angle = v }, value); } }
+        }
+
+        public byte ImageMirrorAxis
+        {
+            get { unsafe { return Get(p => p->imir.axis); } }
+            set { unsafe { Set((p, v) => p->imir = new avifImageMirror() { axis = v }, value); } }
+        }
 
         /*
-        public avifPixelAspectRatioBox pasp;
-        public avifCleanApertureBox clap;
-        public avifImageRotation irot;
-        public avifImageMirror imir;
         public avifRWData exif;
         public avifRWData xmp;
         */
