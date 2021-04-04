@@ -243,7 +243,10 @@ namespace LibAvif
             set { unsafe { Set((p, v) => p->alphaPremultiplied = v, value ? 1 : 0); } }
         }
 
-        //internal avifRWData icc;
+        public AvifData<byte> ICC
+        {
+            get { unsafe { return new AvifData<byte>(Get(p => p->icc)); } }
+        }
 
         public AvifColorPrimaries ColorPrimaries
         {
@@ -289,10 +292,14 @@ namespace LibAvif
             set { unsafe { Set((p, v) => p->imir = new avifImageMirror() { axis = v }, value); } }
         }
 
-        /*
-        public avifRWData exif;
-        public avifRWData xmp;
-        */
+        public AvifData<byte> Exif
+        {
+            get { unsafe { return new AvifData<byte>(Get(p => p->exif)); } }
+        }
 
+        public AvifData<byte> Xmp
+        {
+            get { unsafe { return new AvifData<byte>(Get(p => p->xmp)); } }
+        }
     }
 }
