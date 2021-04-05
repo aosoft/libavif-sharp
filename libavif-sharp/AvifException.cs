@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Runtime.InteropServices;
 using LibAvif.Binding;
 
 namespace LibAvif
@@ -39,7 +38,7 @@ namespace LibAvif
     {
         public AvifResult Result { get; }
 
-        public AvifException(AvifResult r) : base(r.ToString())
+        public AvifException(AvifResult r) : base(Marshal.PtrToStringAnsi(libavif.avifResultToString((avifResult)r)))
         {
             Result = r;
         }

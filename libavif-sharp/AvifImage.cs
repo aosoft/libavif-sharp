@@ -207,6 +207,7 @@ namespace LibAvif
 
     public sealed class AvifImage : IDisposable
     {
+        private bool _disposedValue;
         private IntPtr _native;
 
         public AvifImage()
@@ -224,13 +225,28 @@ namespace LibAvif
             _native = p;
         }
 
+        private void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (_native != IntPtr.Zero)
+                {
+                    libavif.avifImageDestroy(_native);
+                    _native = IntPtr.Zero;
+                }
+                _disposedValue = true;
+            }
+        }
+
+        ~AvifImage()
+        {
+            Dispose(disposing: false);
+        }
+
         public void Dispose()
         {
-            if (_native != IntPtr.Zero)
-            {
-                libavif.avifImageDestroy(_native);
-                _native = IntPtr.Zero;
-            }
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         unsafe private delegate T FnGet<T>(avifImage* p);
@@ -388,6 +404,11 @@ namespace LibAvif
         public AvifData<byte> XMP
         {
             get { unsafe { return new AvifData<byte>(Get(p => p->xmp)); } }
+        }
+
+        public bool IsUsesU16
+        {
+            get { unsafe { return Get(p => libavif.avifImageUsesU16(new IntPtr(p))) != 0; } }
         }
 
         public void AllocatePlanes(AvifPlanesFlags planes)

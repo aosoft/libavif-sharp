@@ -102,8 +102,10 @@ namespace LibAvif
         }
     }
 
-    public class AvifRGBImage : AvifRGBImageView, IDisposable
+    public sealed class AvifRGBImage : AvifRGBImageView, IDisposable
     {
+        private bool _disposedValue;
+
         private AvifRGBImage(uint width, uint height, uint depth, AvifRGBFormat format) : base(width, height, depth, format, IntPtr.Zero, 0)
         {
         }
@@ -123,16 +125,30 @@ namespace LibAvif
             return ret;
         }
 
+        private void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                unsafe
+                {
+                    fixed (avifRGBImage* p = &_native)
+                    {
+                        libavif.avifRGBImageFreePixels(new IntPtr(p));
+                    }
+                }
+                _disposedValue = true;
+            }
+        }
+
+        ~AvifRGBImage()
+        {
+            Dispose(disposing: false);
+        }
 
         public void Dispose()
         {
-            unsafe
-            {
-                fixed (avifRGBImage* p = &_native)
-                {
-                    libavif.avifRGBImageFreePixels(new IntPtr(p));
-                }
-            }
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
