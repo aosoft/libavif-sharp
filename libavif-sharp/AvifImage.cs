@@ -264,6 +264,8 @@ namespace LibAvif
             }
         }
 
+        unsafe public IntPtr Native => _native;
+
         public uint Width
         {
             get { unsafe { return Get(p => p->width); } }
@@ -481,6 +483,32 @@ namespace LibAvif
                     {
                         libavif.avifImageSetMetadataXMP(_native, p, (ulong)xmp.Length);
                     }
+                }
+            }
+        }
+
+        public AvifRGBImage ConvertToRGB()
+        {
+            var ret = AvifRGBImage.Create(this);
+            try
+            {
+                ConvertToRGB(ret);
+                return ret;
+            }
+            catch
+            {
+                ret.Dispose();
+                throw;
+            }
+        }
+
+        public void ConvertToRGB(AvifRGBImage dst)
+        {
+            unsafe
+            {
+                fixed (avifRGBImage* p = &dst._native)
+                {
+                    AvifException.ThrowExceptionForResult((AvifResult)libavif.avifImageYUVToRGB(Native, new IntPtr(p)));
                 }
             }
         }

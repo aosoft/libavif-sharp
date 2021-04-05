@@ -42,5 +42,13 @@ namespace LibAvif
         {
             Result = r;
         }
+
+        public static void ThrowExceptionForResult(AvifResult r)
+        {
+            if (r != AvifResult.Ok)
+            {
+                throw new AvifException(r);
+            }
+        }
     }
 }

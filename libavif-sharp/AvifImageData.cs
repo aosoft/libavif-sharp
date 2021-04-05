@@ -8,9 +8,9 @@ namespace LibAvif
     {
         private readonly AvifData<byte> _data;
 
-        public AvifImageData(uint channel, uint width, uint height, IntPtr p, uint rowBytes)
+        public AvifImageData(uint channelCount, uint width, uint height, IntPtr p, uint rowBytes)
         {
-            Channel = channel;
+            ChannelCount = channelCount;
             Width = width;
             Height = height;
             RowBytes = rowBytes;
@@ -19,7 +19,7 @@ namespace LibAvif
 
         unsafe public IntPtr Pointer => _data.Pointer;
 
-        public uint Channel { get; }
+        public uint ChannelCount { get; }
         public uint Width { get; }
         public uint Height { get; }
         public uint RowBytes { get; }
@@ -34,7 +34,7 @@ namespace LibAvif
                 }
                 unsafe
                 {
-                    return new AvifData<T>(new IntPtr((byte*)_data.Pointer + RowBytes * y), Width * Channel);
+                    return new AvifData<T>(new IntPtr((byte*)_data.Pointer + RowBytes * y), Width * ChannelCount);
                 }
             }
         }

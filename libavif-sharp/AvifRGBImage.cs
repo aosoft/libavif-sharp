@@ -28,6 +28,10 @@ namespace LibAvif
     {
         internal avifRGBImage _native;
 
+        internal AvifRGBImageView()
+        {
+        }
+
         public AvifRGBImageView(uint width, uint height, uint depth, AvifRGBFormat format, IntPtr pixels, uint rowBytes)
         {
             _native.width = width;
@@ -100,24 +104,65 @@ namespace LibAvif
                 }
             }
         }
+
+        public AvifImage ConvertToYUV()
+        {
+            unsafe
+            {
+                fixed (avifRGBImage* p = &_native)
+                {
+                    var ret = new AvifImage();
+                    try
+                    {
+                        AvifException.ThrowExceptionForResult((AvifResult)libavif.avifImageRGBToYUV(ret.Native, new IntPtr(p)));
+                        return ret;
+                    }
+                    catch
+                    {
+                        ret.Dispose();
+                        throw;
+                    }
+                }
+            }
+        }
     }
 
     public sealed class AvifRGBImage : AvifRGBImageView, IDisposable
     {
         private bool _disposedValue;
 
-        private AvifRGBImage(uint width, uint height, uint depth, AvifRGBFormat format) : base(width, height, depth, format, IntPtr.Zero, 0)
+        internal AvifRGBImage()
+        {
+        }
+
+        internal AvifRGBImage(uint width, uint height, uint depth, AvifRGBFormat format, IntPtr pixels, uint rowBytes) : base(width, height, depth, format, pixels, rowBytes)
         {
         }
 
         public static AvifRGBImage Create(uint width, uint height, uint depth, AvifRGBFormat format)
         {
-            var ret = new AvifRGBImage(width, height, depth, format);
+            var ret = new AvifRGBImage(width, height, depth, format, IntPtr.Zero, 0);
 
             unsafe
             {
                 fixed (avifRGBImage* p = &ret._native)
                 {
+                    libavif.avifRGBImageAllocatePixels(new IntPtr(p));
+                }
+            }
+
+            return ret;
+        }
+
+        public static AvifRGBImage Create(AvifImage def)
+        {
+            var ret = new AvifRGBImage();
+
+            unsafe
+            {
+                fixed (avifRGBImage* p = &ret._native)
+                {
+                    libavif.avifRGBImageSetDefaults(new IntPtr(p), def.Native);
                     libavif.avifRGBImageAllocatePixels(new IntPtr(p));
                 }
             }
