@@ -11,7 +11,7 @@ namespace LibAvif
         Single = avifAddImageFlags.AVIF_ADD_IMAGE_FLAG_SINGLE,
     }
 
-    public readonly struct AvifIOStats
+    /*public readonly struct AvifIOStats
     {
         public ulong ColorOBUSize { get; }
         public ulong AlphaOBUSize { get; }
@@ -24,7 +24,7 @@ namespace LibAvif
 
         internal static AvifIOStats From(avifIOStats src) => new AvifIOStats(src.colorOBUSize, src.alphaOBUSize);
         internal avifIOStats To() => new avifIOStats() { colorOBUSize = ColorOBUSize, alphaOBUSize = AlphaOBUSize };
-    }
+    }*/
 
 
     public sealed class AvifEncoder : IDisposable
@@ -41,8 +41,11 @@ namespace LibAvif
         {
             if (!_disposedValue)
             {
-                libavif.avifEncoderDestroy(_native);
-                _native = IntPtr.Zero;
+                if (_native != IntPtr.Zero)
+                {
+                    libavif.avifEncoderDestroy(_native);
+                    _native = IntPtr.Zero;
+                }
                 _disposedValue = true;
             }
         }
@@ -139,11 +142,11 @@ namespace LibAvif
             set { unsafe { Set((p, v) => p->timescale = v, value); } }
         }
 
-        public AvifIOStats IOStats
+        /*public AvifIOStats IOStats
         {
             get { unsafe { return AvifIOStats.From(Get(p => p->ioStats)); } }
             set { unsafe { Set((p, v) => p->ioStats = v.To(), value); } }
-        }
+        }*/
 
         public AvifRWData Write(AvifImage image)
         {
