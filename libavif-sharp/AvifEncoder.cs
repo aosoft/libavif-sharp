@@ -3,6 +3,14 @@ using LibAvif.Binding;
 
 namespace LibAvif
 {
+    [Flags]
+    public enum AvifAddImageFlags : uint
+    {
+        None = avifAddImageFlags.AVIF_ADD_IMAGE_FLAG_NONE,
+        ForceKeyFrame = avifAddImageFlags.AVIF_ADD_IMAGE_FLAG_FORCE_KEYFRAME,
+        Single = avifAddImageFlags.AVIF_ADD_IMAGE_FLAG_SINGLE,
+    }
+
     public readonly struct AvifIOStats
     {
         public ulong ColorOBUSize { get; }
@@ -135,6 +143,56 @@ namespace LibAvif
         {
             get { unsafe { return AvifIOStats.From(Get(p => p->ioStats)); } }
             set { unsafe { Set((p, v) => p->ioStats = v.To(), value); } }
+        }
+
+        public AvifRWData Write(AvifImage image)
+        {
+            if (_native != IntPtr.Zero)
+            {
+                var ret = new AvifRWData();
+                unsafe
+                {
+                    fixed (avifRWData* p = &ret._native)
+                    {
+                        AvifException.ThrowExceptionForResult((AvifResult)libavif.avifEncoderWrite(_native, image.Native, new IntPtr(p)));
+                    }
+                }
+                return ret;
+            }
+            return null;
+        }
+
+        public void AddImage(AvifImage image, ulong durationInTimescales, AvifAddImageFlags addImageFlags)
+        {
+            if (_native != IntPtr.Zero)
+            {
+                AvifException.ThrowExceptionForResult((AvifResult)libavif.avifEncoderAddImage(_native, image.Native, durationInTimescales, (uint)addImageFlags));
+            }
+        }
+
+        public AvifRWData Finish()
+        {
+            if (_native != IntPtr.Zero)
+            {
+                var ret = new AvifRWData();
+                unsafe
+                {
+                    fixed (avifRWData* p = &ret._native)
+                    {
+                        AvifException.ThrowExceptionForResult((AvifResult)libavif.avifEncoderFinish(_native, new IntPtr(p)));
+                    }
+                }
+                return ret;
+            }
+            return null;
+        }
+
+        public void SetCodecSpecificOption(string key, string value)
+        {
+            if (_native != IntPtr.Zero)
+            {
+                libavif.avifEncoderSetCodecSpecificOption(_native, key, value);
+            }
         }
     }
 }
