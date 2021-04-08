@@ -134,14 +134,20 @@ namespace LibAvif
             }
         }
 
-        public AvifImage Read()
+        public AvifImage ReadMemory(byte[] memory)
         {
             if (_native != IntPtr.Zero)
             {
                 var ret = new AvifImage();
                 try
                 {
-                    AvifException.ThrowExceptionForResult((AvifResult)libavif.avifDecoderRead(_native, ret.Native));
+                    unsafe
+                    {
+                        fixed (byte* p = &memory[0])
+                        {
+                            AvifException.ThrowExceptionForResult((AvifResult)libavif.avifDecoderReadMemory(_native, ret.Native, p, (ulong)memory.Length));
+                        }
+                    }
                     return ret;
                 }
                 catch
@@ -153,29 +159,26 @@ namespace LibAvif
             return null;
         }
 
-        public void SetIOMemory(byte[] memory)
+        public AvifImage ReadMemory(AvifReadOnlyData<byte> memory)
         {
             if (_native != IntPtr.Zero)
             {
-                unsafe
+                var ret = new AvifImage();
+                try
                 {
-                    fixed (byte* p = &memory[0])
+                    unsafe
                     {
-                        libavif.avifDecoderSetIOMemory(_native, p, (ulong)memory.Length);
+                        AvifException.ThrowExceptionForResult((AvifResult)libavif.avifDecoderReadMemory(_native, ret.Native, (byte*)memory.Pointer.ToPointer(), memory.Count));
                     }
+                    return ret;
                 }
-            }
-        }
-
-        public void SetIOMemory(AvifReadOnlyData<byte> memory)
-        {
-            if (_native != IntPtr.Zero)
-            {
-                unsafe
+                catch
                 {
-                    libavif.avifDecoderSetIOMemory(_native, (byte*)memory.Pointer.ToPointer(), memory.Count);
+                    ret.Dispose();
+                    throw;
                 }
             }
+            return null;
         }
     }
 }
