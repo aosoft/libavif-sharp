@@ -80,6 +80,22 @@ namespace LibAvif
             set => _native.alphaPremultiplied = value ? 1 : 0;
         }
 
+        public uint PixelSize
+        {
+            get
+            {
+                unsafe
+                {
+                    fixed (avifRGBImage* p = &_native)
+                    {
+                        return libavif.avifRGBImagePixelSize(new IntPtr(p));
+                    }
+                }
+            }
+        }
+
+        public uint BytePerChannel => Depth > 8 ? 2u : 1u;
+
         public AvifImageData<byte> Pixels8 => new AvifImageData<byte>(Format.GetChannelCount(), _native.width, _native.height, _native.pixels, _native.rowBytes);
         public AvifImageData<ushort> Pixels16 => new AvifImageData<ushort>(Format.GetChannelCount(), _native.width, _native.height, _native.pixels, _native.rowBytes);
 
