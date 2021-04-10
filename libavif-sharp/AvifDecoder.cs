@@ -180,5 +180,7 @@ namespace LibAvif
             }
             return null;
         }
+
+        public AvifImage ReadMemory(AvifRWData data) => ReadMemory(data.GetReadOnlyData<byte>());
     }
 }

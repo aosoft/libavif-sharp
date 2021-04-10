@@ -7,7 +7,7 @@ namespace LibAvif.Tests
 {
     static class ImageSource
     {
-        public static AvifRGBImage CreateRGBImage(uint width, uint height, uint depth, AvifRGBFormat format, IntPtr pixels, uint rowBytes)
+        public static AvifRGBImage CreateRGBImage(uint width, uint height, uint depth, AvifRGBFormat format)
         {
             var ret = AvifRGBImage.Create(width, height, depth, format);
             try

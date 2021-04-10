@@ -121,23 +121,44 @@ namespace LibAvif
             }
         }
 
-        public AvifImage ConvertToYUV()
+        public AvifImage ConvertToYUV(
+            AvifPixelFormat format,
+            AvifRange yuvRange,
+            AvifColorPrimaries colorPrimaries,
+            AvifTransferCharacteristics transferCharacteristics,
+            AvifMatrixCoefficients matrixCoefficients)
+        {
+            unsafe
+            {
+                var ret = new AvifImage();
+                try
+                {
+                    ret.Width = Width;
+                    ret.Height = Height;
+                    ret.Depth = Depth;
+                    ret.YUVFormat = format;
+                    ret.YUVRange = yuvRange;
+                    ret.ColorPrimaries = colorPrimaries;
+                    ret.TransferCharacteristics = transferCharacteristics;
+                    ret.MatrixCoefficients = matrixCoefficients;
+                    ConvertToYUV(ret);
+                    return ret;
+                }
+                catch
+                {
+                    ret.Dispose();
+                    throw;
+                }
+            }
+        }
+
+        public void ConvertToYUV(AvifImage image)
         {
             unsafe
             {
                 fixed (avifRGBImage* p = &_native)
                 {
-                    var ret = new AvifImage();
-                    try
-                    {
-                        AvifException.ThrowExceptionForResult((AvifResult)libavif.avifImageRGBToYUV(ret.Native, new IntPtr(p)));
-                        return ret;
-                    }
-                    catch
-                    {
-                        ret.Dispose();
-                        throw;
-                    }
+                    AvifException.ThrowExceptionForResult((AvifResult)libavif.avifImageRGBToYUV(image.Native, new IntPtr(p)));
                 }
             }
         }

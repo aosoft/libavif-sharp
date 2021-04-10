@@ -305,10 +305,10 @@ namespace LibAvif
         public AvifImagePlanes<byte> YUVPlanes8 => new AvifImagePlanes<byte>(_native);
         public AvifImagePlanes<ushort> YUVPlanes16 => new AvifImagePlanes<ushort>(_native);
 
-        public int ImageOwnsYUVPlanes
+        public bool ImageOwnsYUVPlanes
         {
-            get { unsafe { return Get(p => p->imageOwnsYUVPlanes); } }
-            set { unsafe { Set((p, v) => p->imageOwnsYUVPlanes = v, value); } }
+            get { unsafe { return Get(p => p->imageOwnsYUVPlanes) != 0; } }
+            set { unsafe { Set((p, v) => p->imageOwnsYUVPlanes = v ? 1 : 0, value); } }
         }
 
         public AvifRange AlphaRange
@@ -333,10 +333,10 @@ namespace LibAvif
         public AvifImageData<byte> AlphaPlane8 => GetAlphaPlane<byte>();
         public AvifImageData<ushort> AlphaPlane16 => GetAlphaPlane<ushort>();
 
-        public int ImageOwnsAlphaPlane
+        public bool ImageOwnsAlphaPlane
         {
-            get { unsafe { return Get(p => p->imageOwnsAlphaPlane); } }
-            set { unsafe { Set((p, v) => p->imageOwnsAlphaPlane = v, value); } }
+            get { unsafe { return Get(p => p->imageOwnsAlphaPlane) != 0; } }
+            set { unsafe { Set((p, v) => p->imageOwnsAlphaPlane = v, value ? 1 : 0); } }
         }
 
         public bool AlphaPremultiplied

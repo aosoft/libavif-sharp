@@ -44,7 +44,20 @@ namespace LibAvif
             GC.SuppressFinalize(this);
         }
 
-        public IntPtr Data => _native.data;
-        public ulong Size => _native.size;
+        public AvifReadOnlyData<T> GetReadOnlyData<T>() where T : unmanaged
+        {
+            unsafe
+            {
+                return new AvifReadOnlyData<T>(_native.data, _native.size / (ulong)sizeof(T));
+            }
+        }
+
+        public AvifData<T> GetData<T>() where T : unmanaged
+        {
+            unsafe
+            {
+                return new AvifData<T>(_native.data, _native.size / (ulong)sizeof(T));
+            }
+        }
     }
 }
