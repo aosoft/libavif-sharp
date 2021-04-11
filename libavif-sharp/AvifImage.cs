@@ -176,7 +176,7 @@ namespace LibAvif
                 unsafe
                 {
                     var native = (avifImage*)_nativeAvifImage;
-                    var pp = (byte**)(native->yuvPlanes);
+                    var pp = (byte**)&native->yuvPlanes0;
                     var index2 = (int)index;
 
                     uint w = native->width;
@@ -199,7 +199,7 @@ namespace LibAvif
                         }
                     }
 
-                    return new AvifImageData<T>(1, w, h, new IntPtr(*(pp + index2)), native->yuvRowBytes[index2]);
+                    return new AvifImageData<T>(1, w, h, new IntPtr(pp[index2]), native->yuvRowBytes[index2]);
                 }
             }
         }

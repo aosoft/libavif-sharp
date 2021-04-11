@@ -21,7 +21,7 @@ namespace LibAvif.Tests
                 else
                 {
                     InitRGBImage(ret.Pixels8, width, height,
-                        (val, max) => (byte)((double)val / max * 2555.0),
+                        (val, max) => (byte)((double)val / max * 255.0),
                         (val, max) => (byte)(255 - (ushort)((double)val / max * 255.0)));
                 }
             }

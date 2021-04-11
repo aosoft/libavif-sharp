@@ -278,7 +278,9 @@ namespace LibAvif.Binding
         internal avifPixelFormat yuvFormat;
         internal avifRange yuvRange;
         internal avifChromaSamplePosition yuvChromaSamplePosition;
-        internal __IntPtr yuvPlanes;
+        internal __IntPtr yuvPlanes0;   //  __IntPtr yuvPlanes; (uint8_t * yuvPlanes[AVIF_PLANE_COUNT_YUV];)
+        internal __IntPtr yuvPlanes1;
+        internal __IntPtr yuvPlanes2;
         internal fixed uint yuvRowBytes[3];
         internal int imageOwnsYUVPlanes;
         internal avifRange alphaRange;

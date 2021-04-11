@@ -122,6 +122,7 @@ namespace LibAvif
         }
 
         public AvifImage ConvertToYUV(
+            uint depth,
             AvifPixelFormat format,
             AvifRange yuvRange,
             AvifColorPrimaries colorPrimaries,
@@ -135,7 +136,7 @@ namespace LibAvif
                 {
                     ret.Width = Width;
                     ret.Height = Height;
-                    ret.Depth = Depth;
+                    ret.Depth = depth;
                     ret.YUVFormat = format;
                     ret.YUVRange = yuvRange;
                     ret.ColorPrimaries = colorPrimaries;
@@ -151,6 +152,14 @@ namespace LibAvif
                 }
             }
         }
+        public AvifImage ConvertToYUV(
+            AvifPixelFormat format,
+            AvifRange yuvRange,
+            AvifColorPrimaries colorPrimaries,
+            AvifTransferCharacteristics transferCharacteristics,
+            AvifMatrixCoefficients matrixCoefficients) =>
+            ConvertToYUV(Depth, format, yuvRange, colorPrimaries, transferCharacteristics, matrixCoefficients);
+
 
         public void ConvertToYUV(AvifImage image)
         {
