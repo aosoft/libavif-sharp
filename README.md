@@ -3,7 +3,7 @@ libavif-sharp
 
 [LICENSE (BSD)](LICENSE)
 
-C# Binding Library for libavif
+C# Binding Library for [libavif](https://github.com/AOMediaCodec/libavif)
 
 ## How to use
 
