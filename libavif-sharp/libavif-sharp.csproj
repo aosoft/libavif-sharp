@@ -2,8 +2,25 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Platform>anycpu</Platform>
+    <VersionPrefix>0.9.0</VersionPrefix>
+    <PackageId>libavif-sharp</PackageId>
     <RootNamespace>LibAvif</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Company />
+    <Product />
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/aosoft/libavif-sharp</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/aosoft/libavif-sharp</PackageProjectUrl>
+    <Authors>Yasuhiro Taniuchi</Authors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
