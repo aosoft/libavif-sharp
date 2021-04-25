@@ -1,11 +1,11 @@
-name: .NET
+name: build-release
 
 on:
-  workflow_dispatch
-#  push:
-#    branches: [ main ]
-#  pull_request:
-#    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "If you want to publish to nuget, set \"publish\"."
+        required: false
 
 jobs:
   build:
@@ -21,10 +21,10 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet pack -c Release --output $GITHUB_WORKSPACE/artifacts
     #- name: Test
     #  run: dotnet test --no-build --verbosity normal
     - uses: actions/upload-artifact@v2
       with:
-         name: artifact
-         path: ./**/bin/Release/netstandard2.0/
+         name: Packages
+         path: artifacts

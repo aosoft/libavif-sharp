@@ -3,7 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Platform>anycpu</Platform>
-    <VersionPrefix>0.9.0</VersionPrefix>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>pre1</VersionSuffix>
     <PackageId>libavif-sharp</PackageId>
     <RootNamespace>LibAvif</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -14,6 +15,8 @@
     <RepositoryUrl>https://github.com/aosoft/libavif-sharp</RepositoryUrl>
     <PackageProjectUrl>https://github.com/aosoft/libavif-sharp</PackageProjectUrl>
     <Authors>Yasuhiro Taniuchi</Authors>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
