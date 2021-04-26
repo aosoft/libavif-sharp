@@ -9,6 +9,7 @@
     <RootNamespace>LibAvif</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>.NET Binding Library for libavif</Description>
     <Company />
     <Product />
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
