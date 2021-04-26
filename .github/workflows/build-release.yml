@@ -26,5 +26,5 @@ jobs:
     #  run: dotnet test --no-build --verbosity normal
     - uses: actions/upload-artifact@v2
       with:
-         name: Packages
+         name: libavif-sharp_$GITHUB_SHA
          path: artifacts
